@@ -1,0 +1,50 @@
+Metadata-Version: 2.4
+Name: flet-quill
+Version: 0.1.0
+Summary: FletQuill control for Flet
+Author-email: Flet contributors <you@example.com>
+Project-URL: Homepage, https://mydomain.dev
+Project-URL: Documentation, https://github.com/MyGithubAccount/flet-quill
+Project-URL: Repository, https://github.com/MyGithubAccount/flet-quill
+Project-URL: Issues, https://github.com/MyGithubAccount/flet-quill/issues
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: flet>=0.81.0
+
+# flet-quill
+FletQuill control for Flet
+
+## Installation
+
+Add dependency to `pyproject.toml` of your Flet app:
+
+* **Git dependency**
+
+Link to git repository:
+
+```
+dependencies = [
+  "flet-quill @ git+https://github.com/MyGithubAccount/flet-quill",
+  "flet>=0.81.0",
+]
+```
+
+* **uv/pip dependency**  
+
+If the package is published on pypi.org:
+
+```
+dependencies = [
+  "flet-quill",
+  "flet>=0.81.0",
+]
+```
+
+Build your app:
+```
+flet build macos -v
+```
+
+## Documentation
+
+[Link to documentation](https://MyGithubAccount.github.io/flet-quill/)

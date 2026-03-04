@@ -1,0 +1,13 @@
+README.md
+pyproject.toml
+src/flet_quill/__init__.py
+src/flet_quill/flet_quill.py
+src/flet_quill.egg-info/PKG-INFO
+src/flet_quill.egg-info/SOURCES.txt
+src/flet_quill.egg-info/dependency_links.txt
+src/flet_quill.egg-info/requires.txt
+src/flet_quill.egg-info/top_level.txt
+src/flutter/flet_quill/pubspec.yaml
+src/flutter/flet_quill/lib/flet_quill.dart
+src/flutter/flet_quill/lib/src/extension.dart
+src/flutter/flet_quill/lib/src/flet_quill.dart

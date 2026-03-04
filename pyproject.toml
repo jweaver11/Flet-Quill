@@ -1,0 +1,35 @@
+[project]
+name = "flet-quill"
+version = "0.1.0"
+description = "FletQuill control for Flet"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "Flet contributors", email = "you@example.com" }
+]
+dependencies = [
+    "flet>=0.81.0",
+]
+
+[dependency-groups]
+dev = [
+    "mkdocs", 
+    "mkdocs-material",
+    "mkdocstrings[python]"
+]
+
+[project.urls]
+Homepage = "https://mydomain.dev"
+Documentation = "https://github.com/MyGithubAccount/flet-quill"
+Repository = "https://github.com/MyGithubAccount/flet-quill"
+Issues = "https://github.com/MyGithubAccount/flet-quill/issues"
+
+[tool.setuptools.package-data]
+"flutter.flet_quill" = ["**/*"]
+
+[tool.setuptools]
+license-files = []
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
