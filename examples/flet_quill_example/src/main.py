@@ -9,10 +9,15 @@ def main(page: ft.Page):
 
     page.add(
 
-        ft.Container(height=150, width=300, alignment = ft.Alignment.CENTER, bgcolor=ft.Colors.PURPLE_200, content=FletQuill(
-            tooltip="My new FletQuill Control tooltip",
-            value = "My new FletQuill Flet Control", 
-        ),),
+        ft.Container(
+            height=150, width=300, alignment = ft.Alignment.CENTER, bgcolor=ft.Colors.PURPLE_200, 
+            
+            content=FletQuill(
+                tooltip="My new FletQuill Control tooltip",
+                value = "My new FletQuill Flet Control", 
+                
+            ),
+        ),
 
     )
 

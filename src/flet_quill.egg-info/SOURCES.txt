@@ -2,6 +2,7 @@ README.md
 pyproject.toml
 src/flet_quill/__init__.py
 src/flet_quill/flet_quill.py
+src/flet_quill/text_converter.py
 src/flet_quill.egg-info/PKG-INFO
 src/flet_quill.egg-info/SOURCES.txt
 src/flet_quill.egg-info/dependency_links.txt
