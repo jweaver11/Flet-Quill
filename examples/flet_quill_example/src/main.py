@@ -1,5 +1,10 @@
 import flet as ft
-
+import json, os, sys
+src_dir = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "..", "src")
+)
+if src_dir not in sys.path:
+    sys.path.insert(0, src_dir)
 from flet_quill import FletQuill
 
 
@@ -14,7 +19,7 @@ def main(page: ft.Page):
             
             content=FletQuill(
                 tooltip="My new FletQuill Control tooltip",
-                value = "My new FletQuill Flet Control", 
+                #text_data=[{"insert": "Hello, world from text editor\n"}]
                 
             ),
         ),
