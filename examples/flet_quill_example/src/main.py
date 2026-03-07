@@ -15,11 +15,19 @@ def main(page: ft.Page):
     page.add(
 
         ft.Container(
-            height=150, width=300, alignment = ft.Alignment.CENTER, bgcolor=ft.Colors.PURPLE_200, 
+            height=250, width=400, alignment = ft.Alignment.CENTER, bgcolor=ft.Colors.PURPLE_200, 
             
             content=FletQuill(
                 tooltip="My new FletQuill Control tooltip",
-                #text_data=[{"insert": "Hello, world from text editor\n"}]
+                placeholder_text="Your placeholder text",
+                file_path="My_file_path.txt",
+                show_toolbar_divider=False,
+                center_toolbar=True,
+                text_data=[{"insert": "Hello, world from text editor\n"}],
+                toolbar_buttons=[
+                    ft.IconButton(ft.Icons.ADD),
+                    ft.IconButton(ft.Icons.REMOVE),
+                ]
                 
             ),
         ),

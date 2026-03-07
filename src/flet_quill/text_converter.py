@@ -1,5 +1,3 @@
-''' Converts and loads all .txt, pdf, .html, .rtf, .md, and .docx files to delta ops (list) for loading into the text editor. '''
-
 from __future__ import annotations
 
 from typing import Union
