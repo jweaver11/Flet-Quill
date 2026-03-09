@@ -28,6 +28,7 @@ class FletQuill(ft.LayoutControl):
         #default_factory=lambda: [8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 32, 40, 48, 64]
     #)
     toolbar_buttons: list[ft.Control] = None
+    _controller = None
 
     # public Python API
     text_data: list[dict[str, Any]] = None

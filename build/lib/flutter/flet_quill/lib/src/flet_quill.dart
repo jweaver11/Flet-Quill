@@ -1,5 +1,8 @@
 import 'package:flet/flet.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'dart:convert';
 
 class FletQuillControl extends StatelessWidget {
   final Control control;
@@ -11,34 +14,63 @@ class FletQuillControl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String placeholder_text = control.getString("placeholder_text", "Could not read placeholder text")!;
-    String file_path = control.getString("file_path", "Could not read file path")!;
+    String placeholder_text = control.getString("placeholder_text", "")!;
+    //String file_path = control.getString("file_path", "")!;
     final show_toolbar_divider = control.getBool("show_toolbar_divider", true)!;
-    String tooltip = control.getString("tooltip", "Could not read tooltip")!;
-    final String center_toolbar = control.getBool("center_toolbar", false) == true ? "Yes" : "No";
+    final center_toolbar = control.getBool("center_toolbar", false)!;
 
-    final text_data = control.getString(
-      "text_data",
-      [{"insert": "Hello, world!\\n"}].toString(),
-    )!;
+    final rawTextData = control.getString('text_data');
 
-    final toolbarButtonControls = control.children("toolbar_buttons");
+    final ops = rawTextData == null || rawTextData.isEmpty
+        ? <Map<String, dynamic>>[
+            {'insert': '\n'}
+          ]
+        : (jsonDecode(rawTextData) as List)
+            .map((item) => Map<String, dynamic>.from(item as Map))
+            .toList();
 
-    final toolbarButtons = toolbarButtonControls
-        .map((child) => ControlWidget(control: child))
-        .toList();
+    final document = Document.fromJson(ops);
+    final controller = QuillController(
+      document: document,
+      selection: const TextSelection.collapsed(offset: 0),
+    );
 
-    Widget myControl = Column(
-      children: [
-              Text(placeholder_text),
-              Text("File path: $file_path"),
-              Text("Show toolbar divider: $show_toolbar_divider"),
-              Text("Tooltip: $tooltip"),
-              Text("Center toolbar: $center_toolbar"),
-              Text("Text data: $text_data"),
-              Row(children: toolbarButtons)
-            ]
-        ,
+    Widget myControl = Localizations(
+      locale: const Locale('en'),
+      delegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        FlutterQuillLocalizations.delegate,
+      ],
+      child: Column(
+        crossAxisAlignment: center_toolbar
+        ? CrossAxisAlignment.center
+        : CrossAxisAlignment.start,
+        children: [
+          QuillSimpleToolbar(
+            controller: controller,
+            config: QuillSimpleToolbarConfig(
+              showDividers: show_toolbar_divider,
+              //customButtons: toolbarButtons,
+              showSearchButton: false, // Broken buttons
+              showFontFamily: false,
+              showColorButton: false,
+              showBackgroundColorButton: false,
+              showLink: false,
+            ),
+          ),
+          Expanded(
+            child: QuillEditor.basic(
+              controller: controller,
+              config: QuillEditorConfig(
+                
+                placeholder: placeholder_text
+              ),
+            ),
+          )
+        ]
+      )
     );
 
     return LayoutControl(control: control, child: myControl);

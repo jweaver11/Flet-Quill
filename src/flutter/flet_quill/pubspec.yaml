@@ -11,6 +11,8 @@ dependencies:
   flet: ^0.81.0
   flutter:
     sdk: flutter
+  flutter_quill: ^11.5.0
+
 
   # your dependencies here
 
