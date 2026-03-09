@@ -15,8 +15,9 @@ def main(page: ft.Page):
     page.add(
 
         ft.Container(
-            height=250, width=400, alignment = ft.Alignment.CENTER, bgcolor=ft.Colors.PURPLE_200, 
-            
+            alignment = ft.Alignment.CENTER,
+            border=ft.Border.all(1, "blue"),
+            expand=True, 
             content=FletQuill(
                 tooltip="My new FletQuill Control tooltip",
                 placeholder_text="Your placeholder text",
@@ -31,8 +32,10 @@ def main(page: ft.Page):
                 
             ),
         ),
+        
 
     )
+    page.add(ft.Container(border=ft.Border.all(1, "red"), expand=True))
 
 
 ft.run(main)
