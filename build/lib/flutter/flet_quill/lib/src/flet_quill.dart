@@ -214,52 +214,80 @@ class _FletQuillEditorControlState extends State<FletQuillEditorControl> {
 
 // ---------------------------------------------------------------------------
 // FletQuillToolbar — standalone toolbar that drives a registered controller.
-// Listens to the registry so it automatically appears when the matching
-// editor registers its controller.
+// Listens to both the Flet control (for controller_id changes from Python)
+// and the registry (for new editors registering), so it always reflects the
+// active editor.
 // ---------------------------------------------------------------------------
-class FletQuillToolbarControl extends StatelessWidget {
+class FletQuillToolbarControl extends StatefulWidget {
   final Control control;
 
   const FletQuillToolbarControl({super.key, required this.control});
 
   @override
+  State<FletQuillToolbarControl> createState() =>
+      _FletQuillToolbarControlState();
+}
+
+class _FletQuillToolbarControlState extends State<FletQuillToolbarControl> {
+  @override
+  void initState() {
+    super.initState();
+    widget.control.addListener(_onChanged);
+    QuillControllerRegistry().addListener(_onChanged);
+  }
+
+  @override
+  void didUpdateWidget(FletQuillToolbarControl oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.control != widget.control) {
+      oldWidget.control.removeListener(_onChanged);
+      widget.control.addListener(_onChanged);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.control.removeListener(_onChanged);
+    QuillControllerRegistry().removeListener(_onChanged);
+    super.dispose();
+  }
+
+  void _onChanged() => setState(() {});
+
+  @override
   Widget build(BuildContext context) {
     final controllerId =
-        control.getString('controller_id', 'default')!;
-    final showDividers = control.getBool('show_toolbar_divider', true)!;
-    final centerToolbar = control.getBool('center_toolbar', false)!;
+        widget.control.getString('controller_id', 'default')!;
+    final showDividers =
+        widget.control.getBool('show_toolbar_divider', true)!;
+    final centerToolbar =
+        widget.control.getBool('center_toolbar', false)!;
 
-    return ListenableBuilder(
-      listenable: QuillControllerRegistry(),
-      builder: (context, _) {
-        final controller = QuillControllerRegistry().get(controllerId);
+    final controller = QuillControllerRegistry().get(controllerId);
 
-        if (controller == null) {
-          // Editor not yet created; reserve space with nothing.
-          return const SizedBox.shrink();
-        }
+    if (controller == null) {
+      return const SizedBox.shrink();
+    }
 
-        return Localizations.override(
-          context: context,
-          delegates: const [FlutterQuillLocalizations.delegate],
-          child: Align(
-            alignment: centerToolbar
-                ? Alignment.center
-                : Alignment.centerLeft,
-            child: QuillSimpleToolbar(
-              controller: controller,
-              config: QuillSimpleToolbarConfig(
-                showDividers: showDividers,
-                showSearchButton: false,
-                showFontFamily: false,
-                showColorButton: false,
-                showBackgroundColorButton: false,
-                showLink: false,
-              ),
-            ),
+    return Localizations.override(
+      context: context,
+      delegates: const [FlutterQuillLocalizations.delegate],
+      child: Align(
+        alignment:
+            centerToolbar ? Alignment.center : Alignment.centerLeft,
+        child: QuillSimpleToolbar(
+          key: ValueKey(controllerId),
+          controller: controller,
+          config: QuillSimpleToolbarConfig(
+            showDividers: showDividers,
+            showSearchButton: false,
+            showFontFamily: false,
+            showColorButton: false,
+            showBackgroundColorButton: false,
+            showLink: false,
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
