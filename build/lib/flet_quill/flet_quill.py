@@ -1,18 +1,14 @@
 from dataclasses import field
 import flet as ft
-from typing import Optional, Callable, Any
-import json
-import os
+from typing import Optional, Any
 
-from flet.controls.base_control import skip_field
-from flet.controls.control_event import ControlEvent, ControlEventHandler
 from .text_converter import load_file_to_delta_ops
-import dataclasses
+
 
 @ft.control("FletQuill")
 class FletQuill(ft.LayoutControl):
     """
-    FletQuill Control description.
+    Combined Quill toolbar + editor in a single control.
     """
 
     file_path: Optional[str] = None
@@ -20,19 +16,34 @@ class FletQuill(ft.LayoutControl):
     center_toolbar: bool = False
     placeholder_text: Optional[str] = "Enter text here..."
     tooltip: Optional[str] = None
-
-    # Non-standard data
-    
-    #save_method: Optional[Callable[[list], None]] = None #not needed?
-    #font_sizes: list[int] = field(
-        #default_factory=lambda: [8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 32, 40, 48, 64]
-    #)
     toolbar_buttons: list[ft.Control] = None
-    _controller = None
 
-    # public Python API
+    # Content passed as Delta ops list.
     text_data: list[dict[str, Any]] = None
-    #print("Text data passed in: \n", text_data)
 
 
-  
+@ft.control("FletQuillEditor")
+class FletQuillEditor(ft.LayoutControl):
+    """
+    Standalone Quill editor.  Pair with FletQuillToolbar via a shared
+    controller_id to support multiple editors driven by a single toolbar
+    (e.g. simulating page breaks like Google Docs / Word).
+    """
+
+    controller_id: str = "default"
+    placeholder_text: Optional[str] = "Enter text here..."
+    # Initial content as Delta ops list.
+    text_data: list[dict[str, Any]] = None
+
+
+@ft.control("FletQuillToolbar")
+class FletQuillToolbar(ft.Control):
+    """
+    Standalone Quill toolbar.  Set controller_id to match the active
+    FletQuillEditor to control it.  Changing controller_id at runtime
+    seamlessly transfers toolbar control to the new editor.
+    """
+
+    controller_id: str = "default"
+    show_toolbar_divider: bool = True
+    center_toolbar: bool = False

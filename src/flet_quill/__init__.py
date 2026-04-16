@@ -1,1 +1,1 @@
-from flet_quill.flet_quill import FletQuill
+from flet_quill.flet_quill import FletQuill, FletQuillEditor, FletQuillToolbar

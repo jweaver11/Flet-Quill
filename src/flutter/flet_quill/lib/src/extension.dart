@@ -9,6 +9,10 @@ class Extension extends FletExtension {
     switch (control.type) {
       case "FletQuill":
         return FletQuillControl(control: control);
+      case "FletQuillEditor":
+        return FletQuillEditorControl(control: control);
+      case "FletQuillToolbar":
+        return FletQuillToolbarControl(control: control);
       default:
         return null;
     }
