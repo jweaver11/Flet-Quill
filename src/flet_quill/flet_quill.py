@@ -1,4 +1,4 @@
-from dataclasses import field
+import json
 import flet as ft
 from typing import Optional, Any
 
@@ -21,6 +21,17 @@ class FletQuill(ft.LayoutControl):
     # Content passed as Delta ops list.
     text_data: list[dict[str, Any]] = None
 
+    async def save(self) -> list[dict[str, Any]]:
+        """
+        Returns the current editor content as a Delta ops list.
+
+        Example::
+
+            data = await quill.save()
+        """
+        result = await self._invoke_method("get_delta")
+        return json.loads(result)
+
 
 @ft.control("FletQuillEditor")
 class FletQuillEditor(ft.LayoutControl):
@@ -34,6 +45,17 @@ class FletQuillEditor(ft.LayoutControl):
     placeholder_text: Optional[str] = "Enter text here..."
     # Initial content as Delta ops list.
     text_data: list[dict[str, Any]] = None
+
+    async def save(self) -> list[dict[str, Any]]:
+        """
+        Returns the current editor content as a Delta ops list.
+
+        Example::
+
+            data = await editor.save()
+        """
+        result = await self._invoke_method("get_delta")
+        return json.loads(result)
 
 
 @ft.control("FletQuillToolbar")

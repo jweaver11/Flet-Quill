@@ -5,12 +5,11 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill/quill_delta.dart';
 import 'dart:convert';
 
-// Top-level function so it can be used in a const QuillClipboardConfig.
-// Returning null tells flutter_quill to discard the pasted binary image.
+// ---------------------------------------------------------------------------
+// Image paste blocking — top-level so they work in const QuillClipboardConfig.
+// ---------------------------------------------------------------------------
 Future<String?> _rejectImagePaste(Uint8List _) async => null;
 
-// Strips image/video embed ops from an HTML-parsed Delta before it is
-// inserted. This blocks the pasteHTML() path that runs before onImagePaste.
 Future<Delta?> _stripImagesFromDelta(Delta delta, bool isExternal) async {
   final ops = delta.toJson();
   final filtered = <dynamic>[];
@@ -19,16 +18,38 @@ Future<Delta?> _stripImagesFromDelta(Delta delta, bool isExternal) async {
     final insert = opMap['insert'];
     if (insert is Map &&
         (insert.containsKey('image') || insert.containsKey('video'))) {
-      continue; // drop the embed op entirely
+      continue;
     }
     filtered.add(opMap);
   }
   return Delta.fromJson(filtered);
 }
 
+// Font size items shown in the toolbar dropdown (display label → stored value).
+const _kFontSizeItems = {
+  '8': '8',
+  '10': '10',
+  '12': '12',
+  '14': '14',
+  '16': '16',
+  '20': '20',
+  '24': '24',
+  '32': '32',
+  '48': '48',
+  '64': '64',
+};
+
 // ---------------------------------------------------------------------------
-// Shared controller registry — lets a toolbar and multiple editors share the
-// same QuillController by matching a string controller_id.
+// Registry entry — a controller + focus node for one logical editor.
+// ---------------------------------------------------------------------------
+class _EditorEntry {
+  final QuillController controller;
+  final FocusNode focusNode;
+  _EditorEntry({required this.controller, required this.focusNode});
+}
+
+// ---------------------------------------------------------------------------
+// Shared registry — lets toolbar and editors pair via a controller_id string.
 // ---------------------------------------------------------------------------
 class QuillControllerRegistry extends ChangeNotifier {
   static final QuillControllerRegistry _instance =
@@ -36,11 +57,11 @@ class QuillControllerRegistry extends ChangeNotifier {
   factory QuillControllerRegistry() => _instance;
   QuillControllerRegistry._internal();
 
-  final Map<String, QuillController> _controllers = {};
+  final Map<String, _EditorEntry> _entries = {};
 
-  QuillController getOrCreate(String id, {Document? initialDocument}) {
-    if (!_controllers.containsKey(id)) {
-      _controllers[id] = QuillController(
+  _EditorEntry getOrCreate(String id, {Document? initialDocument}) {
+    if (!_entries.containsKey(id)) {
+      final controller = QuillController(
         document: initialDocument ?? Document(),
         selection: const TextSelection.collapsed(offset: 0),
         config: const QuillControllerConfig(
@@ -50,30 +71,79 @@ class QuillControllerRegistry extends ChangeNotifier {
           ),
         ),
       );
-      // Notify toolbar widgets that a new controller is available.
+      _entries[id] = _EditorEntry(
+        controller: controller,
+        focusNode: FocusNode(),
+      );
       WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
     }
-    return _controllers[id]!;
+    return _entries[id]!;
   }
 
-  QuillController? get(String id) => _controllers[id];
+  QuillController? getController(String id) => _entries[id]?.controller;
+  FocusNode? getFocusNode(String id) => _entries[id]?.focusNode;
 }
 
 // ---------------------------------------------------------------------------
-// Helper: parse text_data JSON string into a Document.
+// Document parsing.
+//
+// Flet's Python→Dart msgpack transport sends list[dict] fields as a raw
+// Dart List<dynamic> where each dict is Map<dynamic, dynamic> (NOT
+// Map<String, dynamic>). Using .cast<Map<String,dynamic>>() throws at
+// runtime. We must convert each entry explicitly with Map.from().
 // ---------------------------------------------------------------------------
-Document _parseDocument(String? textData) {
-  if (textData == null) return Document();
+Document _parseDocument(Control control) {
+  final raw = control.get('text_data');
+  if (raw == null) return Document();
   try {
-    final ops = (jsonDecode(textData) as List).cast<Map<String, dynamic>>();
-    return Document.fromJson(ops);
+    final List<dynamic> ops;
+    if (raw is List) {
+      ops = raw;
+    } else if (raw is String) {
+      ops = jsonDecode(raw) as List;
+    } else {
+      return Document();
+    }
+    final typed =
+        ops.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+    return Document.fromJson(typed);
   } catch (_) {
     return Document();
   }
 }
 
 // ---------------------------------------------------------------------------
-// FletQuill — combined toolbar + editor (original API, preserved for compat).
+// Shared toolbar config builder.
+// ---------------------------------------------------------------------------
+QuillSimpleToolbarConfig _toolbarConfig({
+  required bool showDividers,
+  VoidCallback? afterButtonPressed,
+}) {
+  return QuillSimpleToolbarConfig(
+    showDividers: showDividers,
+    showSearchButton: false,
+    showFontFamily: false,
+    showColorButton: false,
+    showBackgroundColorButton: false,
+    showLink: false,
+    buttonOptions: QuillSimpleToolbarButtonOptions(
+      base: QuillToolbarBaseButtonOptions(
+        afterButtonPressed: afterButtonPressed,
+      ),
+      fontSize: const QuillToolbarFontSizeButtonOptions(
+        items: _kFontSizeItems,
+      ),
+    ),
+  );
+}
+
+// Post-frame focus request helper.
+void _requestFocus(FocusNode node) {
+  WidgetsBinding.instance.addPostFrameCallback((_) => node.requestFocus());
+}
+
+// ---------------------------------------------------------------------------
+// FletQuill — combined toolbar + editor (original single-widget API).
 // ---------------------------------------------------------------------------
 class FletQuillControl extends StatefulWidget {
   final Control control;
@@ -86,13 +156,13 @@ class FletQuillControl extends StatefulWidget {
 
 class _FletQuillControlState extends State<FletQuillControl> {
   late QuillController _controller;
+  late FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
-    final textData = widget.control.getString('text_data', null);
     _controller = QuillController(
-      document: _parseDocument(textData),
+      document: _parseDocument(widget.control),
       selection: const TextSelection.collapsed(offset: 0),
       config: const QuillControllerConfig(
         clipboardConfig: QuillClipboardConfig(
@@ -101,11 +171,22 @@ class _FletQuillControlState extends State<FletQuillControl> {
         ),
       ),
     );
+    _focusNode = FocusNode();
+    widget.control.addInvokeMethodListener(_invokeMethod);
+  }
+
+  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+    if (name == 'get_delta') {
+      return jsonEncode(_controller.document.toDelta().toJson());
+    }
+    throw Exception('Unknown FletQuill method: $name');
   }
 
   @override
   void dispose() {
+    widget.control.removeInvokeMethodListener(_invokeMethod);
     _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -118,43 +199,39 @@ class _FletQuillControlState extends State<FletQuillControl> {
     final centerToolbar =
         widget.control.getBool('center_toolbar', false)!;
 
-    final Widget myControl = Localizations.override(
-      context: context,
-      delegates: const [FlutterQuillLocalizations.delegate],
-      child: Column(
-        crossAxisAlignment: centerToolbar
-            ? CrossAxisAlignment.center
-            : CrossAxisAlignment.start,
-        children: [
-          QuillSimpleToolbar(
-            controller: _controller,
-            config: QuillSimpleToolbarConfig(
-              showDividers: showToolbarDivider,
-              showSearchButton: false,
-              showFontFamily: false,
-              showColorButton: false,
-              showBackgroundColorButton: false,
-              showLink: false,
-            ),
-          ),
-          Expanded(
-            child: QuillEditor.basic(
+    return LayoutControl(
+      control: widget.control,
+      child: Localizations.override(
+        context: context,
+        delegates: const [FlutterQuillLocalizations.delegate],
+        child: Column(
+          crossAxisAlignment: centerToolbar
+              ? CrossAxisAlignment.center
+              : CrossAxisAlignment.start,
+          children: [
+            QuillSimpleToolbar(
               controller: _controller,
-              config: QuillEditorConfig(
-                placeholder: placeholderText,
+              config: _toolbarConfig(
+                showDividers: showToolbarDivider,
+                afterButtonPressed: () => _requestFocus(_focusNode),
               ),
             ),
-          ),
-        ],
+            Expanded(
+              child: QuillEditor.basic(
+                focusNode: _focusNode,
+                controller: _controller,
+                config: QuillEditorConfig(placeholder: placeholderText),
+              ),
+            ),
+          ],
+        ),
       ),
     );
-
-    return LayoutControl(control: widget.control, child: myControl);
   }
 }
 
 // ---------------------------------------------------------------------------
-// FletQuillEditor — standalone editor that participates in the shared registry.
+// FletQuillEditor — standalone editor participating in the shared registry.
 // ---------------------------------------------------------------------------
 class FletQuillEditorControl extends StatefulWidget {
   final Control control;
@@ -167,28 +244,41 @@ class FletQuillEditorControl extends StatefulWidget {
 }
 
 class _FletQuillEditorControlState extends State<FletQuillEditorControl> {
-  QuillController? _controller;
+  _EditorEntry? _entry;
   String? _currentControllerId;
 
-  void _syncController() {
+  void _syncEntry() {
     final id = widget.control.getString('controller_id', 'default')!;
     if (id == _currentControllerId) return;
     _currentControllerId = id;
-    final textData = widget.control.getString('text_data', null);
-    _controller = QuillControllerRegistry()
-        .getOrCreate(id, initialDocument: _parseDocument(textData));
+    _entry = QuillControllerRegistry()
+        .getOrCreate(id, initialDocument: _parseDocument(widget.control));
   }
 
   @override
   void initState() {
     super.initState();
-    _syncController();
+    _syncEntry();
+    widget.control.addInvokeMethodListener(_invokeMethod);
+  }
+
+  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+    if (name == 'get_delta') {
+      return jsonEncode(_entry!.controller.document.toDelta().toJson());
+    }
+    throw Exception('Unknown FletQuillEditor method: $name');
   }
 
   @override
   void didUpdateWidget(FletQuillEditorControl oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _syncController();
+    _syncEntry();
+  }
+
+  @override
+  void dispose() {
+    widget.control.removeInvokeMethodListener(_invokeMethod);
+    super.dispose();
   }
 
   @override
@@ -202,10 +292,9 @@ class _FletQuillEditorControlState extends State<FletQuillEditorControl> {
         context: context,
         delegates: const [FlutterQuillLocalizations.delegate],
         child: QuillEditor.basic(
-          controller: _controller!,
-          config: QuillEditorConfig(
-            placeholder: placeholder,
-          ),
+          focusNode: _entry!.focusNode,
+          controller: _entry!.controller,
+          config: QuillEditorConfig(placeholder: placeholder),
         ),
       ),
     );
@@ -213,10 +302,7 @@ class _FletQuillEditorControlState extends State<FletQuillEditorControl> {
 }
 
 // ---------------------------------------------------------------------------
-// FletQuillToolbar — standalone toolbar that drives a registered controller.
-// Listens to both the Flet control (for controller_id changes from Python)
-// and the registry (for new editors registering), so it always reflects the
-// active editor.
+// FletQuillToolbar — standalone toolbar driving a registry controller.
 // ---------------------------------------------------------------------------
 class FletQuillToolbarControl extends StatefulWidget {
   final Control control;
@@ -263,7 +349,8 @@ class _FletQuillToolbarControlState extends State<FletQuillToolbarControl> {
     final centerToolbar =
         widget.control.getBool('center_toolbar', false)!;
 
-    final controller = QuillControllerRegistry().get(controllerId);
+    final controller = QuillControllerRegistry().getController(controllerId);
+    final focusNode = QuillControllerRegistry().getFocusNode(controllerId);
 
     if (controller == null) {
       return const SizedBox.shrink();
@@ -278,16 +365,14 @@ class _FletQuillToolbarControlState extends State<FletQuillToolbarControl> {
         child: QuillSimpleToolbar(
           key: ValueKey(controllerId),
           controller: controller,
-          config: QuillSimpleToolbarConfig(
+          config: _toolbarConfig(
             showDividers: showDividers,
-            showSearchButton: false,
-            showFontFamily: false,
-            showColorButton: false,
-            showBackgroundColorButton: false,
-            showLink: false,
+            afterButtonPressed:
+                focusNode != null ? () => _requestFocus(focusNode) : null,
           ),
         ),
       ),
     );
   }
 }
+

@@ -62,6 +62,17 @@ def main(page: ft.Page):
             ),
             on_click=lambda _: focus_editor(editor_id),
         )
+    
+    quill = FletQuill(
+                show_toolbar_divider=False,
+                center_toolbar=False,
+                text_data=[{"insert": "Hello from the combined control!\n"}],
+                
+            )
+    
+    async def _save_quill(e):
+        data = await quill.save()
+        print("Saved content:", data)
 
     # ── Layout ─────────────────────────────────────────────────────────────
     # Section 1: combined control (original API still works).
@@ -70,14 +81,12 @@ def main(page: ft.Page):
         ft.Container(
             border=ft.Border.all(1, ft.Colors.GREEN),
             expand=True,
-            content=FletQuill(
-                show_toolbar_divider=False,
-                center_toolbar=False,
-                text_data=[{"insert": "Hello from the combined control!\n"}],
-            ),
+            content=quill
         ),
+        ft.Button("Save", on_click=_save_quill)
     )
 
+    '''
     # Section 2: separate toolbar + multi-editor.
     page.add(
         ft.Text(
@@ -93,6 +102,7 @@ def main(page: ft.Page):
             ],
         ),
     )
+    '''
 
 
 ft.run(main)
