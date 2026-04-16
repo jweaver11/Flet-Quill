@@ -2,11 +2,29 @@ import 'package:flet/flet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill/quill_delta.dart';
 import 'dart:convert';
 
 // Top-level function so it can be used in a const QuillClipboardConfig.
-// Returning null tells flutter_quill to discard the pasted image.
+// Returning null tells flutter_quill to discard the pasted binary image.
 Future<String?> _rejectImagePaste(Uint8List _) async => null;
+
+// Strips image/video embed ops from an HTML-parsed Delta before it is
+// inserted. This blocks the pasteHTML() path that runs before onImagePaste.
+Future<Delta?> _stripImagesFromDelta(Delta delta, bool isExternal) async {
+  final ops = delta.toJson();
+  final filtered = <dynamic>[];
+  for (final op in ops) {
+    final opMap = op as Map<String, dynamic>;
+    final insert = opMap['insert'];
+    if (insert is Map &&
+        (insert.containsKey('image') || insert.containsKey('video'))) {
+      continue; // drop the embed op entirely
+    }
+    filtered.add(opMap);
+  }
+  return Delta.fromJson(filtered);
+}
 
 // ---------------------------------------------------------------------------
 // Shared controller registry — lets a toolbar and multiple editors share the
@@ -28,6 +46,7 @@ class QuillControllerRegistry extends ChangeNotifier {
         config: const QuillControllerConfig(
           clipboardConfig: QuillClipboardConfig(
             onImagePaste: _rejectImagePaste,
+            onRichTextPaste: _stripImagesFromDelta,
           ),
         ),
       );
@@ -78,6 +97,7 @@ class _FletQuillControlState extends State<FletQuillControl> {
       config: const QuillControllerConfig(
         clipboardConfig: QuillClipboardConfig(
           onImagePaste: _rejectImagePaste,
+          onRichTextPaste: _stripImagesFromDelta,
         ),
       ),
     );
