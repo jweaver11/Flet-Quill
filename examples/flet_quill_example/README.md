@@ -13,3 +13,21 @@ To run the app whenin using `pip`:
 ```
 flet run [app_directory]
 ```
+
+## Build on Windows
+
+When packaging on Windows you might hit a lock error like `WinError 32` for
+`build\\flutter-packages-temp`. That is usually caused by stale `python`,
+`dart`, or `flutter` processes holding files in the previous build directory.
+
+Run a clean build with:
+
+```
+powershell -ExecutionPolicy Bypass -File .\build_windows.ps1
+```
+
+The script:
+
+- stops stale build-related processes,
+- removes `.\\build`, and
+- runs `flet build -v windows` from the local virtual environment.
