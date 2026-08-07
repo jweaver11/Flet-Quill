@@ -1,5 +1,6 @@
 import flet as ft
 import json, os, sys
+import asyncio
 
 src_dir = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "..", "..", "src")
@@ -26,11 +27,27 @@ def main(page: ft.Page):
         font_sizes=[16, 24, 20]
     )
 
+    done_page_break = False
+
+    async def handle_height_change(e: ft.LayoutSizeChangeEvent):
+        nonlocal done_page_break
+        if e.height > 50:
+            if not done_page_break:
+                print(e.height)
+                await editor.page_break()
+                done_page_break = True
+                print("Page broken")
+                data = await editor.save()
+                print(data)
+
+
     editor = FletQuillEditor(
         controller_id=PAGE_1,
         placeholder_text="Page 1 — click here to edit",
         text_data=[{"insert": "Page 1 content\n"}],
         expand=True,
+        page_break_height=400,
+        on_size_change=handle_height_change
     )
 
     
@@ -40,12 +57,14 @@ def main(page: ft.Page):
     page.add(
         
         toolbar,
-        ft.Container(
-            editor,
-            padding=40,
-            bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
-            border_radius=10,
-        )
+        ft.Column([
+            ft.Container(
+                editor,
+                padding=40,
+                bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
+                border_radius=10,
+            )
+        ], expand=True, scroll="auto"),
     )
     
 
