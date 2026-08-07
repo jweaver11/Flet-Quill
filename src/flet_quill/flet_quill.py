@@ -1,4 +1,5 @@
 import json
+from dataclasses import field
 import flet as ft
 from typing import Optional, Any
 
@@ -16,8 +17,8 @@ class FletQuill(ft.LayoutControl):
     center_toolbar: bool = False
     placeholder_text: Optional[str] = "Enter text here..."
     tooltip: Optional[str] = None
-    toolbar_buttons: list[ft.Control] = None
-    font_sizes: Optional[list[int]] = None
+    toolbar_buttons: list[ft.Control] = field(default_factory=list)
+    font_sizes: Optional[list[int]] = None 
 
     # Content passed as Delta ops list.
     text_data: list[dict[str, Any]] = None
@@ -101,3 +102,4 @@ class FletQuillToolbar(ft.Control):
     show_toolbar_divider: bool = True
     center_toolbar: bool = False
     font_sizes: Optional[list[int]] = None
+    toolbar_buttons: list[ft.Control] = field(default_factory=list)

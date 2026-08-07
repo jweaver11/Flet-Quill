@@ -114,8 +114,7 @@ Document _parseDocument(Control control) {
     } else {
       return Document();
     }
-    final typed =
-        ops.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+    final typed = ops.map((e) => Map<String, dynamic>.from(e as Map)).toList();
     return Document.fromJson(typed);
   } catch (_) {
     return Document();
@@ -141,9 +140,7 @@ QuillSimpleToolbarConfig _toolbarConfig({
       base: QuillToolbarBaseButtonOptions(
         afterButtonPressed: afterButtonPressed,
       ),
-      fontSize: QuillToolbarFontSizeButtonOptions(
-        items: fontSizeItems,
-      ),
+      fontSize: QuillToolbarFontSizeButtonOptions(items: fontSizeItems),
     ),
   );
 }
@@ -151,6 +148,10 @@ QuillSimpleToolbarConfig _toolbarConfig({
 // Post-frame focus request helper.
 void _requestFocus(FocusNode node) {
   WidgetsBinding.instance.addPostFrameCallback((_) => node.requestFocus());
+}
+
+List<Widget> _buildToolbarButtons(Control control) {
+  return control.buildWidgets('toolbar_buttons');
 }
 
 // ---------------------------------------------------------------------------
@@ -247,13 +248,14 @@ class _FletQuillControlState extends State<FletQuillControl> {
 
   @override
   Widget build(BuildContext context) {
-    final placeholderText =
-        widget.control.getString('placeholder_text', '')!;
-    final showToolbarDivider =
-        widget.control.getBool('show_toolbar_divider', true)!;
-    final centerToolbar =
-        widget.control.getBool('center_toolbar', false)!;
+    final placeholderText = widget.control.getString('placeholder_text', '')!;
+    final showToolbarDivider = widget.control.getBool(
+      'show_toolbar_divider',
+      true,
+    )!;
+    final centerToolbar = widget.control.getBool('center_toolbar', false)!;
     final fontSizeItems = _parseFontSizes(widget.control);
+    final toolbarButtons = _buildToolbarButtons(widget.control);
 
     return LayoutControl(
       control: widget.control,
@@ -265,13 +267,19 @@ class _FletQuillControlState extends State<FletQuillControl> {
               ? CrossAxisAlignment.center
               : CrossAxisAlignment.start,
           children: [
-            QuillSimpleToolbar(
-              controller: _controller,
-              config: _toolbarConfig(
-                showDividers: showToolbarDivider,
-                fontSizeItems: fontSizeItems,
-                afterButtonPressed: () => _requestFocus(_focusNode),
-              ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                QuillSimpleToolbar(
+                  controller: _controller,
+                  config: _toolbarConfig(
+                    showDividers: showToolbarDivider,
+                    fontSizeItems: fontSizeItems,
+                    afterButtonPressed: () => _requestFocus(_focusNode),
+                  ),
+                ),
+                ...toolbarButtons,
+              ],
             ),
             Expanded(
               child: QuillEditor.basic(
@@ -299,8 +307,7 @@ class FletQuillEditorControl extends StatefulWidget {
   const FletQuillEditorControl({super.key, required this.control});
 
   @override
-  State<FletQuillEditorControl> createState() =>
-      _FletQuillEditorControlState();
+  State<FletQuillEditorControl> createState() => _FletQuillEditorControlState();
 }
 
 class _FletQuillEditorControlState extends State<FletQuillEditorControl> {
@@ -311,8 +318,10 @@ class _FletQuillEditorControlState extends State<FletQuillEditorControl> {
     final id = widget.control.getString('controller_id', 'default')!;
     if (id == _currentControllerId) return;
     _currentControllerId = id;
-    _entry = QuillControllerRegistry()
-        .getOrCreate(id, initialDocument: _parseDocument(widget.control));
+    _entry = QuillControllerRegistry().getOrCreate(
+      id,
+      initialDocument: _parseDocument(widget.control),
+    );
   }
 
   @override
@@ -356,8 +365,7 @@ class _FletQuillEditorControlState extends State<FletQuillEditorControl> {
 
   @override
   Widget build(BuildContext context) {
-    final placeholder =
-        widget.control.getString('placeholder_text', '')!;
+    final placeholder = widget.control.getString('placeholder_text', '')!;
 
     return LayoutControl(
       control: widget.control,
@@ -418,14 +426,12 @@ class _FletQuillToolbarControlState extends State<FletQuillToolbarControl> {
 
   @override
   Widget build(BuildContext context) {
-    final controllerId =
-        widget.control.getString('controller_id', 'default')!;
-    final showDividers =
-        widget.control.getBool('show_toolbar_divider', true)!;
-    final centerToolbar =
-        widget.control.getBool('center_toolbar', false)!;
+    final controllerId = widget.control.getString('controller_id', 'default')!;
+    final showDividers = widget.control.getBool('show_toolbar_divider', true)!;
+    final centerToolbar = widget.control.getBool('center_toolbar', false)!;
 
     final fontSizeItems = _parseFontSizes(widget.control);
+    final toolbarButtons = _buildToolbarButtons(widget.control);
     final controller = QuillControllerRegistry().getController(controllerId);
     final focusNode = QuillControllerRegistry().getFocusNode(controllerId);
 
@@ -450,9 +456,9 @@ class _FletQuillToolbarControlState extends State<FletQuillToolbarControl> {
                   focusNode != null ? () => _requestFocus(focusNode) : null,
             ),
           ),
+          ...toolbarButtons,
         ],
       ),
     );
   }
 }
-
