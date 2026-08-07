@@ -17,9 +17,13 @@ class FletQuill(ft.LayoutControl):
     placeholder_text: Optional[str] = "Enter text here..."
     tooltip: Optional[str] = None
     toolbar_buttons: list[ft.Control] = None
+    font_sizes: Optional[list[int]] = None
 
     # Content passed as Delta ops list.
     text_data: list[dict[str, Any]] = None
+
+    # Height in logical pixels of each page break inserted by page_break().
+    page_break_height: Optional[float] = None
 
     async def save(self) -> list[dict[str, Any]]:
         """
@@ -31,6 +35,18 @@ class FletQuill(ft.LayoutControl):
         """
         result = await self._invoke_method("get_delta")
         return json.loads(result)
+
+    async def page_break(self) -> None:
+        """
+        Inserts a page break at the current cursor position.
+        The visual height of the break is determined by ``page_break_height``
+        (defaults to 40 logical pixels when not set).
+
+        Example::
+
+            await quill.page_break()
+        """
+        await self._invoke_method("insert_page_break")
 
 
 @ft.control("FletQuillEditor")
@@ -46,6 +62,9 @@ class FletQuillEditor(ft.LayoutControl):
     # Initial content as Delta ops list.
     text_data: list[dict[str, Any]] = None
 
+    # Height in logical pixels of each page break inserted by page_break().
+    page_break_height: Optional[float] = None
+
     async def save(self) -> list[dict[str, Any]]:
         """
         Returns the current editor content as a Delta ops list.
@@ -56,6 +75,18 @@ class FletQuillEditor(ft.LayoutControl):
         """
         result = await self._invoke_method("get_delta")
         return json.loads(result)
+
+    async def page_break(self) -> None:
+        """
+        Inserts a page break at the current cursor position.
+        The visual height of the break is determined by ``page_break_height``
+        (defaults to 40 logical pixels when not set).
+
+        Example::
+
+            await editor.page_break()
+        """
+        await self._invoke_method("insert_page_break")
 
 
 @ft.control("FletQuillToolbar")
@@ -69,3 +100,4 @@ class FletQuillToolbar(ft.Control):
     controller_id: str = "default"
     show_toolbar_divider: bool = True
     center_toolbar: bool = False
+    font_sizes: Optional[list[int]] = None

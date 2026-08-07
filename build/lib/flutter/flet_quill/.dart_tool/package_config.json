@@ -38,6 +38,12 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "charcode",
+      "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/charcode-1.4.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
       "name": "clock",
       "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/clock-1.1.2",
       "packageUri": "lib/",
@@ -80,6 +86,18 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "csslib",
+      "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/csslib-1.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.1"
+    },
+    {
+      "name": "dart_quill_delta",
+      "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/dart_quill_delta-10.8.3",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
       "name": "dbus",
       "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/dbus-0.7.12",
       "packageUri": "lib/",
@@ -96,6 +114,12 @@
       "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/device_info_plus_platform_interface-7.0.3",
       "packageUri": "lib/",
       "languageVersion": "3.7"
+    },
+    {
+      "name": "diff_match_patch",
+      "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/diff_match_patch-0.4.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
     },
     {
       "name": "equatable",
@@ -128,6 +152,18 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "file_selector_platform_interface",
+      "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/file_selector_platform_interface-2.7.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.7"
+    },
+    {
+      "name": "file_selector_windows",
+      "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/file_selector_windows-0.9.3+5",
+      "packageUri": "lib/",
+      "languageVersion": "3.8"
+    },
+    {
       "name": "fixnum",
       "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/fixnum-1.1.1",
       "packageUri": "lib/",
@@ -146,8 +182,44 @@
       "languageVersion": "3.9"
     },
     {
+      "name": "flutter_colorpicker",
+      "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/flutter_colorpicker-1.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.14"
+    },
+    {
       "name": "flutter_highlight",
       "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/flutter_highlight-0.7.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "flutter_keyboard_visibility_linux",
+      "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/flutter_keyboard_visibility_linux-1.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "flutter_keyboard_visibility_macos",
+      "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/flutter_keyboard_visibility_macos-1.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "flutter_keyboard_visibility_platform_interface",
+      "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/flutter_keyboard_visibility_platform_interface-2.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "flutter_keyboard_visibility_temp_fork",
+      "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/flutter_keyboard_visibility_temp_fork-0.1.5",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "flutter_keyboard_visibility_windows",
+      "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/flutter_keyboard_visibility_windows-1.0.0",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -188,6 +260,18 @@
       "languageVersion": "3.9"
     },
     {
+      "name": "flutter_quill",
+      "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/flutter_quill-11.5.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "flutter_quill_delta_from_html",
+      "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/flutter_quill_delta_from_html-1.5.3",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
       "name": "flutter_svg",
       "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/flutter_svg-2.2.3",
       "packageUri": "lib/",
@@ -222,6 +306,12 @@
       "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/hooks-1.0.1",
       "packageUri": "lib/",
       "languageVersion": "3.9"
+    },
+    {
+      "name": "html",
+      "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/html-0.15.6",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
     },
     {
       "name": "http",
@@ -432,6 +522,54 @@
       "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/pub_semver-2.2.0",
       "packageUri": "lib/",
       "languageVersion": "3.4"
+    },
+    {
+      "name": "quill_native_bridge",
+      "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/quill_native_bridge-11.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "quill_native_bridge_android",
+      "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/quill_native_bridge_android-0.0.1+2",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "quill_native_bridge_ios",
+      "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/quill_native_bridge_ios-0.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "quill_native_bridge_macos",
+      "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/quill_native_bridge_macos-0.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "quill_native_bridge_platform_interface",
+      "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/quill_native_bridge_platform_interface-0.0.2+1",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "quill_native_bridge_web",
+      "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/quill_native_bridge_web-0.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "quill_native_bridge_windows",
+      "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/quill_native_bridge_windows-0.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "quiver",
+      "rootUri": "file:///Users/josh/.pub-cache/hosted/pub.dev/quiver-3.2.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
     },
     {
       "name": "screen_brightness",

@@ -14,7 +14,7 @@ Future<Delta?> _stripImagesFromDelta(Delta delta, bool isExternal) async {
   final ops = delta.toJson();
   final filtered = <dynamic>[];
   for (final op in ops) {
-    final opMap = op as Map<String, dynamic>;
+    final opMap = op;
     final insert = opMap['insert'];
     if (insert is Map &&
         (insert.containsKey('image') || insert.containsKey('video'))) {
@@ -38,6 +38,16 @@ const _kFontSizeItems = {
   '48': '48',
   '64': '64',
 };
+
+// Parse a font_sizes list from the control (e.g. [8, 10, 12, 16]) into the
+// Map<String, String> format expected by QuillToolbarFontSizeButtonOptions.
+Map<String, String> _parseFontSizes(Control control) {
+  final raw = control.get('font_sizes');
+  if (raw == null) return _kFontSizeItems;
+  final list = raw is List ? raw : <dynamic>[];
+  if (list.isEmpty) return _kFontSizeItems;
+  return {for (final s in list) s.toString(): s.toString()};
+}
 
 // ---------------------------------------------------------------------------
 // Registry entry — a controller + focus node for one logical editor.
@@ -117,6 +127,7 @@ Document _parseDocument(Control control) {
 // ---------------------------------------------------------------------------
 QuillSimpleToolbarConfig _toolbarConfig({
   required bool showDividers,
+  Map<String, String> fontSizeItems = _kFontSizeItems,
   VoidCallback? afterButtonPressed,
 }) {
   return QuillSimpleToolbarConfig(
@@ -130,8 +141,8 @@ QuillSimpleToolbarConfig _toolbarConfig({
       base: QuillToolbarBaseButtonOptions(
         afterButtonPressed: afterButtonPressed,
       ),
-      fontSize: const QuillToolbarFontSizeButtonOptions(
-        items: _kFontSizeItems,
+      fontSize: QuillToolbarFontSizeButtonOptions(
+        items: fontSizeItems,
       ),
     ),
   );
@@ -140,6 +151,38 @@ QuillSimpleToolbarConfig _toolbarConfig({
 // Post-frame focus request helper.
 void _requestFocus(FocusNode node) {
   WidgetsBinding.instance.addPostFrameCallback((_) => node.requestFocus());
+}
+
+// ---------------------------------------------------------------------------
+// Page break embed.
+// Stored in Delta as: {"insert": {"page_break": "<height>"}}
+// The height string is the logical-pixel height set at insertion time.
+// ---------------------------------------------------------------------------
+class PageBreakEmbedBuilder extends EmbedBuilder {
+  const PageBreakEmbedBuilder();
+
+  @override
+  String get key => 'page_break';
+
+  @override
+  bool get expanded => true;
+
+  @override
+  Widget build(BuildContext context, EmbedContext embedContext) {
+    final height =
+        double.tryParse(embedContext.node.value.data.toString()) ?? 40.0;
+    return _PageBreakWidget(height: height);
+  }
+}
+
+class _PageBreakWidget extends StatelessWidget {
+  const _PageBreakWidget({required this.height});
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(width: double.infinity, height: height);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -179,6 +222,18 @@ class _FletQuillControlState extends State<FletQuillControl> {
     if (name == 'get_delta') {
       return jsonEncode(_controller.document.toDelta().toJson());
     }
+    if (name == 'insert_page_break') {
+      final height = widget.control.getDouble('page_break_height') ?? 40.0;
+      final index = _controller.selection.baseOffset;
+      final len = _controller.selection.extentOffset - index;
+      _controller.replaceText(
+        index,
+        len,
+        BlockEmbed('page_break', height.toString()),
+        TextSelection.collapsed(offset: index + 1),
+      );
+      return null;
+    }
     throw Exception('Unknown FletQuill method: $name');
   }
 
@@ -198,6 +253,7 @@ class _FletQuillControlState extends State<FletQuillControl> {
         widget.control.getBool('show_toolbar_divider', true)!;
     final centerToolbar =
         widget.control.getBool('center_toolbar', false)!;
+    final fontSizeItems = _parseFontSizes(widget.control);
 
     return LayoutControl(
       control: widget.control,
@@ -213,6 +269,7 @@ class _FletQuillControlState extends State<FletQuillControl> {
               controller: _controller,
               config: _toolbarConfig(
                 showDividers: showToolbarDivider,
+                fontSizeItems: fontSizeItems,
                 afterButtonPressed: () => _requestFocus(_focusNode),
               ),
             ),
@@ -220,7 +277,10 @@ class _FletQuillControlState extends State<FletQuillControl> {
               child: QuillEditor.basic(
                 focusNode: _focusNode,
                 controller: _controller,
-                config: QuillEditorConfig(placeholder: placeholderText),
+                config: QuillEditorConfig(
+                  placeholder: placeholderText,
+                  embedBuilders: const [PageBreakEmbedBuilder()],
+                ),
               ),
             ),
           ],
@@ -266,6 +326,19 @@ class _FletQuillEditorControlState extends State<FletQuillEditorControl> {
     if (name == 'get_delta') {
       return jsonEncode(_entry!.controller.document.toDelta().toJson());
     }
+    if (name == 'insert_page_break') {
+      final height = widget.control.getDouble('page_break_height') ?? 40.0;
+      final controller = _entry!.controller;
+      final index = controller.selection.baseOffset;
+      final len = controller.selection.extentOffset - index;
+      controller.replaceText(
+        index,
+        len,
+        BlockEmbed('page_break', height.toString()),
+        TextSelection.collapsed(offset: index + 1),
+      );
+      return null;
+    }
     throw Exception('Unknown FletQuillEditor method: $name');
   }
 
@@ -294,7 +367,10 @@ class _FletQuillEditorControlState extends State<FletQuillEditorControl> {
         child: QuillEditor.basic(
           focusNode: _entry!.focusNode,
           controller: _entry!.controller,
-          config: QuillEditorConfig(placeholder: placeholder),
+          config: QuillEditorConfig(
+            placeholder: placeholder,
+            embedBuilders: const [PageBreakEmbedBuilder()],
+          ),
         ),
       ),
     );
@@ -349,6 +425,7 @@ class _FletQuillToolbarControlState extends State<FletQuillToolbarControl> {
     final centerToolbar =
         widget.control.getBool('center_toolbar', false)!;
 
+    final fontSizeItems = _parseFontSizes(widget.control);
     final controller = QuillControllerRegistry().getController(controllerId);
     final focusNode = QuillControllerRegistry().getFocusNode(controllerId);
 
@@ -359,18 +436,21 @@ class _FletQuillToolbarControlState extends State<FletQuillToolbarControl> {
     return Localizations.override(
       context: context,
       delegates: const [FlutterQuillLocalizations.delegate],
-      child: Align(
-        alignment:
-            centerToolbar ? Alignment.center : Alignment.centerLeft,
-        child: QuillSimpleToolbar(
-          key: ValueKey(controllerId),
-          controller: controller,
-          config: _toolbarConfig(
-            showDividers: showDividers,
-            afterButtonPressed:
-                focusNode != null ? () => _requestFocus(focusNode) : null,
+      child: Row(
+        mainAxisAlignment:
+            centerToolbar ? MainAxisAlignment.center : MainAxisAlignment.start,
+        children: [
+          QuillSimpleToolbar(
+            key: ValueKey(controllerId),
+            controller: controller,
+            config: _toolbarConfig(
+              showDividers: showDividers,
+              fontSizeItems: fontSizeItems,
+              afterButtonPressed:
+                  focusNode != null ? () => _requestFocus(focusNode) : null,
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
