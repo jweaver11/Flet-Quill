@@ -29,5 +29,6 @@ powershell -ExecutionPolicy Bypass -File .\build_windows.ps1
 The script:
 
 - stops stale build-related processes,
-- removes `.\\build`, and
-- runs `flet build -v windows` from the local virtual environment.
+- removes `.\\build` plus stale Flutter extension staging folders,
+- retries the build when Flet hits the transient `flutter-packages-temp` lock, and
+- runs `flet build -v windows` from the repository virtual environment.

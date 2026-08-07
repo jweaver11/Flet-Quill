@@ -20,11 +20,29 @@ def main(page: ft.Page):
     page.vertical_alignment = ft.MainAxisAlignment.START
     page.horizontal_alignment = ft.CrossAxisAlignment.STRETCH
 
+    async def save_editor(_):
+        print(await editor.save())
+
+    async def insert_page_break(_):
+        await editor.page_break()
+
     # ── Shared toolbar ─────────────────────────────────────────────────────
     toolbar = FletQuillToolbar(
         controller_id=PAGE_1,  # starts controlling page 1
         show_toolbar_divider=True,
-        font_sizes=[16, 24, 20]
+        font_sizes=[16, 24, 20],
+        toolbar_buttons=[
+            ft.IconButton(
+                icon=ft.Icons.SAVE,
+                tooltip="Print Delta",
+                on_click=save_editor,
+            ),
+            ft.IconButton(
+                icon=ft.Icons.INSERT_PAGE_BREAK,
+                tooltip="Insert page break",
+                on_click=insert_page_break,
+            ),
+        ],
     )
 
     done_page_break = False
@@ -40,7 +58,7 @@ def main(page: ft.Page):
                 data = await editor.save()
                 print(data)
 
-
+ 
     editor = FletQuillEditor(
         controller_id=PAGE_1,
         placeholder_text="Page 1 — click here to edit",
