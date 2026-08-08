@@ -1,6 +1,5 @@
 import flet as ft
-import json, os, sys
-import asyncio
+import os, sys
 
 src_dir = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "..", "..", "src")
@@ -19,6 +18,10 @@ def main(page: ft.Page):
     page.title = "Flet-Quill Demo"
     page.vertical_alignment = ft.MainAxisAlignment.START
     page.horizontal_alignment = ft.CrossAxisAlignment.STRETCH
+
+    page_width = 400
+    page_height = 300
+    page_spacing = 100
 
     async def save_editor(_):
         print(await editor.save())
@@ -45,27 +48,18 @@ def main(page: ft.Page):
         ],
     )
 
-    done_page_break = False
-
-    async def handle_height_change(e: ft.LayoutSizeChangeEvent):
-        nonlocal done_page_break
-        if e.height > 50:
-            if not done_page_break:
-                print(e.height)
-                await editor.page_break()
-                done_page_break = True
-                print("Page broken")
-                data = await editor.save()
-                print(data)
-
- 
     editor = FletQuillEditor(
         controller_id=PAGE_1,
         placeholder_text="Page 1 — click here to edit",
         text_data=[{"insert": "Page 1 content\n"}],
-        expand=True,
-        page_break_height=400,
-        on_size_change=handle_height_change
+        page_width=page_width,
+        page_height=page_height,
+        page_spacing=page_spacing,
+        page_color=ft.Colors.SURFACE_CONTAINER_HIGHEST,
+        border=ft.Border.all(1, ft.Colors.BLACK),
+        border_radius=10,
+        padding=12,
+        auto_page_breaks=True,
     )
 
     
@@ -76,14 +70,10 @@ def main(page: ft.Page):
         
         toolbar,
         ft.Column([
-            ft.Container(
-                editor,
-                padding=40,
-                bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
-                border_radius=10,
-            )
-        ], expand=True, scroll="auto"),
+            editor,
+        ], scroll="auto"),
     )
+    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     
 
 

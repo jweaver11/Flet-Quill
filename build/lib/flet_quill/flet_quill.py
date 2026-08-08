@@ -19,12 +19,22 @@ class FletQuill(ft.LayoutControl):
     tooltip: Optional[str] = None
     toolbar_buttons: list[ft.Control] = field(default_factory=list)
     font_sizes: Optional[list[int]] = None 
+    page_width: Optional[float] = None
+    page_height: Optional[float] = None
+    page_spacing: Optional[float] = None
+    page_color: Optional[str] = None
+    padding: Optional[Any] = None
+    border: Optional[Any] = None
+    border_radius: Optional[Any] = None
+    auto_page_breaks: bool = True
 
     # Content passed as Delta ops list.
     text_data: list[dict[str, Any]] = None
 
-    # Height in logical pixels of each page break inserted by page_break().
+    # Target page height in logical pixels used by dynamic page breaks.
     page_break_height: Optional[float] = None
+    # Extra vertical spacing inserted between pages.
+    page_break_gap: Optional[float] = None
 
     async def save(self) -> list[dict[str, Any]]:
         """
@@ -40,8 +50,10 @@ class FletQuill(ft.LayoutControl):
     async def page_break(self) -> None:
         """
         Inserts a page break at the current cursor position.
-        The visual height of the break is determined by ``page_break_height``
-        (defaults to 40 logical pixels when not set).
+        The break dynamically fills the remaining space on the current page
+        using ``page_break_height`` as the page height (defaults to 40 logical
+        pixels when not set). ``page_break_gap`` adds extra spacing between
+        pages (defaults to 0).
 
         Example::
 
@@ -62,9 +74,19 @@ class FletQuillEditor(ft.LayoutControl):
     placeholder_text: Optional[str] = "Enter text here..."
     # Initial content as Delta ops list.
     text_data: list[dict[str, Any]] = None
+    page_width: Optional[float] = None
+    page_height: Optional[float] = None
+    page_spacing: Optional[float] = None
+    page_color: Optional[str] = None
+    padding: Optional[Any] = None
+    border: Optional[Any] = None
+    border_radius: Optional[Any] = None
+    auto_page_breaks: bool = True
 
-    # Height in logical pixels of each page break inserted by page_break().
+    # Target page height in logical pixels used by dynamic page breaks.
     page_break_height: Optional[float] = None
+    # Extra vertical spacing inserted between pages.
+    page_break_gap: Optional[float] = None
 
     async def save(self) -> list[dict[str, Any]]:
         """
@@ -80,8 +102,10 @@ class FletQuillEditor(ft.LayoutControl):
     async def page_break(self) -> None:
         """
         Inserts a page break at the current cursor position.
-        The visual height of the break is determined by ``page_break_height``
-        (defaults to 40 logical pixels when not set).
+        The break dynamically fills the remaining space on the current page
+        using ``page_break_height`` as the page height (defaults to 40 logical
+        pixels when not set). ``page_break_gap`` adds extra spacing between
+        pages (defaults to 0).
 
         Example::
 
