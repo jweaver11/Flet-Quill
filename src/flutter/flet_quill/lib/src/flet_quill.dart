@@ -383,9 +383,8 @@ class _FletQuillToolbarControlState extends State<FletQuillToolbarControl> {
     return Localizations.override(
       context: context,
       delegates: const [FlutterQuillLocalizations.delegate],
-      child: Row(
-        mainAxisAlignment:
-            centerToolbar ? MainAxisAlignment.center : MainAxisAlignment.start,
+      child: Wrap(
+        alignment: centerToolbar ? WrapAlignment.center : WrapAlignment.start,
         children: [
           QuillSimpleToolbar(
             key: ValueKey(controllerId),
