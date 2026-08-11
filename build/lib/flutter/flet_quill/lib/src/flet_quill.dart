@@ -126,16 +126,26 @@ Document _parseDocument(Control control) {
 // ---------------------------------------------------------------------------
 QuillSimpleToolbarConfig _toolbarConfig({
   required bool showDividers,
+  required bool centerToolbar,
   Map<String, String> fontSizeItems = _kFontSizeItems,
+  List<Widget> toolbarButtons = const <Widget>[],
   VoidCallback? afterButtonPressed,
 }) {
   return QuillSimpleToolbarConfig(
     showDividers: showDividers,
+    toolbarIconAlignment:
+        centerToolbar ? WrapAlignment.center : WrapAlignment.start,
     showSearchButton: false,
     showFontFamily: false,
     showColorButton: false,
     showBackgroundColorButton: false,
     showLink: false,
+    customButtons: [
+      for (final button in toolbarButtons)
+        QuillToolbarCustomButtonOptions(
+          icon: button,
+        ),
+    ],
     buttonOptions: QuillSimpleToolbarButtonOptions(
       base: QuillToolbarBaseButtonOptions(
         afterButtonPressed: afterButtonPressed,
@@ -223,19 +233,15 @@ class _FletQuillControlState extends State<FletQuillControl> {
               ? CrossAxisAlignment.center
               : CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                QuillSimpleToolbar(
-                  controller: _controller,
-                  config: _toolbarConfig(
-                    showDividers: showToolbarDivider,
-                    fontSizeItems: fontSizeItems,
-                    afterButtonPressed: () => _requestFocus(_focusNode),
-                  ),
-                ),
-                ...toolbarButtons,
-              ],
+            QuillSimpleToolbar(
+              controller: _controller,
+              config: _toolbarConfig(
+                showDividers: showToolbarDivider,
+                centerToolbar: centerToolbar,
+                fontSizeItems: fontSizeItems,
+                toolbarButtons: toolbarButtons,
+                afterButtonPressed: () => _requestFocus(_focusNode),
+              ),
             ),
             Expanded(
               child: QuillEditor.basic(
@@ -383,21 +389,17 @@ class _FletQuillToolbarControlState extends State<FletQuillToolbarControl> {
     return Localizations.override(
       context: context,
       delegates: const [FlutterQuillLocalizations.delegate],
-      child: Wrap(
-        alignment: centerToolbar ? WrapAlignment.center : WrapAlignment.start,
-        children: [
-          QuillSimpleToolbar(
-            key: ValueKey(controllerId),
-            controller: controller,
-            config: _toolbarConfig(
-              showDividers: showDividers,
-              fontSizeItems: fontSizeItems,
-              afterButtonPressed:
-                  focusNode != null ? () => _requestFocus(focusNode) : null,
-            ),
-          ),
-          ...toolbarButtons,
-        ],
+      child: QuillSimpleToolbar(
+        key: ValueKey(controllerId),
+        controller: controller,
+        config: _toolbarConfig(
+          showDividers: showDividers,
+          centerToolbar: centerToolbar,
+          fontSizeItems: fontSizeItems,
+          toolbarButtons: toolbarButtons,
+          afterButtonPressed:
+              focusNode != null ? () => _requestFocus(focusNode) : null,
+        ),
       ),
     );
   }

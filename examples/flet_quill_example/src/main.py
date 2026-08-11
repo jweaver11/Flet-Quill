@@ -33,6 +33,11 @@ def main(page: ft.Page):
                 tooltip="Print Delta",
                 on_click=save_editor,
             ),
+            ft.IconButton(
+                            icon=ft.Icons.SAVE,
+                            tooltip="Print Delta",
+                            on_click=save_editor,
+                        ),
         ],
     )
 
