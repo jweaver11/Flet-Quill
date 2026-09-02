@@ -14,6 +14,7 @@ class FletQuill(ft.LayoutControl):
 
     file_path: Optional[str] = None
     show_toolbar_divider: bool = True
+    show_line_height_button: bool = False
     center_toolbar: bool = False
     placeholder_text: Optional[str] = "Enter text here..."
     tooltip: Optional[str] = None
@@ -70,6 +71,7 @@ class FletQuillToolbar(ft.Control):
 
     controller_id: str = "default"
     show_toolbar_divider: bool = True
+    show_line_height_button: bool = True
     center_toolbar: bool = False
     font_sizes: Optional[list[int]] = None
     toolbar_buttons: list[ft.Control] = field(default_factory=list)

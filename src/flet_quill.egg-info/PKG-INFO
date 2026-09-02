@@ -60,9 +60,13 @@ flet build macos -v
 Those controls are rendered after the built-in Quill formatting toolbar, which
 lets you add app-specific actions such as save/export/page-break buttons.
 
+Set `show_line_height_button=True` to add Flutter Quill's line-height dropdown
+to either `FletQuill` or `FletQuillToolbar`.
+
 ```python
 toolbar = FletQuillToolbar(
   controller_id="page_1",
+  show_line_height_button=True,
   toolbar_buttons=[
     ft.IconButton(icon=ft.Icons.SAVE, on_click=save_editor),
     ft.IconButton(icon=ft.Icons.INSERT_PAGE_BREAK, on_click=insert_page_break),

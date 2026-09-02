@@ -26,6 +26,7 @@ def main(page: ft.Page):
     toolbar = FletQuillToolbar(
         controller_id=PAGE_1,  # starts controlling page 1
         show_toolbar_divider=True,
+        show_line_height_button=True,
         font_sizes=[16, 24, 20],
         toolbar_buttons=[
             ft.IconButton(

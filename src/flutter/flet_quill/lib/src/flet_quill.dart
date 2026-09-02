@@ -126,6 +126,7 @@ Document _parseDocument(Control control) {
 // ---------------------------------------------------------------------------
 QuillSimpleToolbarConfig _toolbarConfig({
   required bool showDividers,
+  required bool showLineHeightButton,
   required bool centerToolbar,
   Map<String, String> fontSizeItems = _kFontSizeItems,
   List<Widget> toolbarButtons = const <Widget>[],
@@ -133,6 +134,7 @@ QuillSimpleToolbarConfig _toolbarConfig({
 }) {
   return QuillSimpleToolbarConfig(
     showDividers: showDividers,
+    showLineHeightButton: showLineHeightButton,
     toolbarIconAlignment:
         centerToolbar ? WrapAlignment.center : WrapAlignment.start,
     showSearchButton: false,
@@ -219,6 +221,10 @@ class _FletQuillControlState extends State<FletQuillControl> {
       'show_toolbar_divider',
       true,
     )!;
+    final showLineHeightButton = widget.control.getBool(
+      'show_line_height_button',
+      false,
+    )!;
     final centerToolbar = widget.control.getBool('center_toolbar', false)!;
     final fontSizeItems = _parseFontSizes(widget.control);
     final toolbarButtons = _buildToolbarButtons(widget.control);
@@ -237,6 +243,7 @@ class _FletQuillControlState extends State<FletQuillControl> {
               controller: _controller,
               config: _toolbarConfig(
                 showDividers: showToolbarDivider,
+                showLineHeightButton: showLineHeightButton,
                 centerToolbar: centerToolbar,
                 fontSizeItems: fontSizeItems,
                 toolbarButtons: toolbarButtons,
@@ -375,6 +382,10 @@ class _FletQuillToolbarControlState extends State<FletQuillToolbarControl> {
   Widget build(BuildContext context) {
     final controllerId = widget.control.getString('controller_id', 'default')!;
     final showDividers = widget.control.getBool('show_toolbar_divider', true)!;
+    final showLineHeightButton = widget.control.getBool(
+      'show_line_height_button',
+      true,
+    )!;
     final centerToolbar = widget.control.getBool('center_toolbar', false)!;
 
     final fontSizeItems = _parseFontSizes(widget.control);
@@ -394,6 +405,7 @@ class _FletQuillToolbarControlState extends State<FletQuillToolbarControl> {
         controller: controller,
         config: _toolbarConfig(
           showDividers: showDividers,
+          showLineHeightButton: showLineHeightButton,
           centerToolbar: centerToolbar,
           fontSizeItems: fontSizeItems,
           toolbarButtons: toolbarButtons,
