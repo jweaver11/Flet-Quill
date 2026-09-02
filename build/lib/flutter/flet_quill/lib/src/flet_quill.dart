@@ -39,6 +39,82 @@ const _kFontSizeItems = {
   '64': '64',
 };
 
+const _kPageBreakEmbedType = 'page-break';
+
+class _PageBreakPainter extends CustomPainter {
+  const _PageBreakPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const label = 'Page Break';
+    final paint = Paint()
+      ..color = Colors.grey.withValues(alpha: 0.55)
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+    final textPainter = TextPainter(
+      text: const TextSpan(
+        text: label,
+        style: TextStyle(
+          color: Colors.grey,
+          fontSize: 12,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    const dashWidth = 6.0;
+    const gapWidth = 5.0;
+    var x = 0.0;
+    final y = size.height / 2;
+    final labelStart = (size.width - textPainter.width) / 2;
+    final labelEnd = labelStart + textPainter.width;
+    while (x < size.width) {
+      final dashEnd = x + dashWidth;
+      if (dashEnd > labelStart && x < labelEnd) {
+        if (x < labelStart) {
+          canvas.drawLine(Offset(x, y), Offset(labelStart, y), paint);
+        }
+        if (dashEnd > labelEnd) {
+          canvas.drawLine(Offset(labelEnd, y), Offset(dashEnd, y), paint);
+        }
+      } else {
+        canvas.drawLine(Offset(x, y), Offset(dashEnd, y), paint);
+      }
+      x += dashWidth + gapWidth;
+    }
+    textPainter.paint(
+      canvas,
+      Offset(labelStart, y - textPainter.height / 2),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _PageBreakEmbedBuilder extends EmbedBuilder {
+  @override
+  String get key => _kPageBreakEmbedType;
+
+  @override
+  Widget build(BuildContext context, EmbedContext embedContext) {
+    return const SizedBox(
+      width: double.infinity,
+      height: 24,
+      child: CustomPaint(painter: _PageBreakPainter()),
+    );
+  }
+}
+
+void _insertPageBreak(QuillController controller) {
+  final index = controller.selection.start;
+  controller.replaceText(
+    index,
+    0,
+    BlockEmbed(_kPageBreakEmbedType, ''),
+    TextSelection.collapsed(offset: index + 1),
+  );
+}
+
 // Parse a font_sizes list from the control (e.g. [8, 10, 12, 16]) into the
 // Map<String, String> format expected by QuillToolbarFontSizeButtonOptions.
 Map<String, String> _parseFontSizes(Control control) {
@@ -128,6 +204,7 @@ QuillSimpleToolbarConfig _toolbarConfig({
   required bool showDividers,
   required bool showLineHeightButton,
   required bool centerToolbar,
+  required QuillController controller,
   Map<String, String> fontSizeItems = _kFontSizeItems,
   List<Widget> toolbarButtons = const <Widget>[],
   VoidCallback? afterButtonPressed,
@@ -143,6 +220,11 @@ QuillSimpleToolbarConfig _toolbarConfig({
     showBackgroundColorButton: false,
     showLink: false,
     customButtons: [
+      QuillToolbarCustomButtonOptions(
+        icon: const Icon(Icons.insert_page_break),
+        tooltip: 'Insert page break',
+        onPressed: () => _insertPageBreak(controller),
+      ),
       for (final button in toolbarButtons)
         QuillToolbarCustomButtonOptions(
           icon: button,
@@ -245,6 +327,7 @@ class _FletQuillControlState extends State<FletQuillControl> {
                 showDividers: showToolbarDivider,
                 showLineHeightButton: showLineHeightButton,
                 centerToolbar: centerToolbar,
+                controller: _controller,
                 fontSizeItems: fontSizeItems,
                 toolbarButtons: toolbarButtons,
                 afterButtonPressed: () => _requestFocus(_focusNode),
@@ -256,6 +339,7 @@ class _FletQuillControlState extends State<FletQuillControl> {
                 controller: _controller,
                 config: QuillEditorConfig(
                   placeholder: placeholderText,
+                  embedBuilders: [_PageBreakEmbedBuilder()],
                 ),
               ),
             ),
@@ -332,6 +416,7 @@ class _FletQuillEditorControlState extends State<FletQuillEditorControl> {
           controller: _entry!.controller,
           config: QuillEditorConfig(
             placeholder: placeholder,
+            embedBuilders: [_PageBreakEmbedBuilder()],
           ),
         ),
       ),
@@ -407,6 +492,7 @@ class _FletQuillToolbarControlState extends State<FletQuillToolbarControl> {
           showDividers: showDividers,
           showLineHeightButton: showLineHeightButton,
           centerToolbar: centerToolbar,
+          controller: controller,
           fontSizeItems: fontSizeItems,
           toolbarButtons: toolbarButtons,
           afterButtonPressed:

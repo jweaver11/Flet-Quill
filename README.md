@@ -45,6 +45,10 @@ lets you add app-specific actions such as save/export/page-break buttons.
 Set `show_line_height_button=True` to add Flutter Quill's line-height dropdown
 to either `FletQuill` or `FletQuillToolbar`.
 
+Both toolbar variants include an **Insert page break** button. It inserts a
+`page-break` block embed, rendered as a faded dashed divider that fills the
+available editor width.
+
 ```python
 toolbar = FletQuillToolbar(
   controller_id="page_1",
