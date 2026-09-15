@@ -9,14 +9,14 @@ authors = [
 ]
 dependencies = [
     "flet-quill",
-    "flet>=0.81.0",
+    "flet>=1.0.0",
 ]
 
 [dependency-groups]
 dev = [
-    "flet-cli>=0.81.0",
-    "flet-desktop>=0.81.0",
-    "flet-web>=0.81.0",
+    "flet-cli>=1.0.0",
+    "flet-desktop>=1.0.0",
+    "flet-web>=1.0.0",
 ]
 
 [tool.flet]
