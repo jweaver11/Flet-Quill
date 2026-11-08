@@ -9,12 +9,7 @@ Project-URL: Repository, https://github.com/MyGithubAccount/flet-quill
 Project-URL: Issues, https://github.com/MyGithubAccount/flet-quill/issues
 Requires-Python: >=3.10
 Description-Content-Type: text/markdown
-Requires-Dist: flet>=0.86.5
-Requires-Dist: beautifulsoup4>=4.12.0
-Requires-Dist: pypdf>=5.0.0
-Requires-Dist: python-docx>=1.1.0
-Requires-Dist: striprtf>=0.0.26
-Requires-Dist: markdown>=3.6
+Requires-Dist: flet>=1.0.0
 
 # flet-quill
 FletQuill control for Flet
@@ -53,6 +48,21 @@ flet build macos -v
 ## Documentation
 
 [Link to documentation](https://MyGithubAccount.github.io/flet-quill/)
+
+## Editor content
+
+`FletQuill` and `FletQuillEditor` accept initial content through `text_data`
+as a list of Quill Delta operations, for example:
+
+```python
+editor = FletQuillEditor(text_data=[{"insert": "Hello, world!\n"}])
+delta_ops = await editor.save()
+```
+
+Omit `text_data` to start with an empty document. `save()` returns the current
+Delta operations; it does not write a file. File paths, JSON strings, and
+other document formats are not supported as editor input or output. Applications
+that need file storage or format conversion must implement those separately.
 
 ## Toolbar buttons
 

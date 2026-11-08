@@ -5,6 +5,8 @@ import 'package:flutter_quill/quill_delta.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'document.dart';
+
 // ---------------------------------------------------------------------------
 // Image paste blocking — top-level so they work in const QuillClipboardConfig.
 // ---------------------------------------------------------------------------
@@ -171,33 +173,6 @@ class QuillControllerRegistry extends ChangeNotifier {
 }
 
 // ---------------------------------------------------------------------------
-// Document parsing.
-//
-// Flet's Python→Dart msgpack transport sends list[dict] fields as a raw
-// Dart List<dynamic> where each dict is Map<dynamic, dynamic> (NOT
-// Map<String, dynamic>). Using .cast<Map<String,dynamic>>() throws at
-// runtime. We must convert each entry explicitly with Map.from().
-// ---------------------------------------------------------------------------
-Document _parseDocument(Control control) {
-  final raw = control.get('text_data');
-  if (raw == null) return Document();
-  try {
-    final List<dynamic> ops;
-    if (raw is List) {
-      ops = raw;
-    } else if (raw is String) {
-      ops = jsonDecode(raw) as List;
-    } else {
-      return Document();
-    }
-    final typed = ops.map((e) => Map<String, dynamic>.from(e as Map)).toList();
-    return Document.fromJson(typed);
-  } catch (_) {
-    return Document();
-  }
-}
-
-// ---------------------------------------------------------------------------
 // Shared toolbar config builder.
 // ---------------------------------------------------------------------------
 QuillSimpleToolbarConfig _toolbarConfig({
@@ -268,7 +243,7 @@ class _FletQuillControlState extends State<FletQuillControl> {
   void initState() {
     super.initState();
     _controller = QuillController(
-      document: _parseDocument(widget.control),
+      document: parseDocument(widget.control.get('text_data')),
       selection: const TextSelection.collapsed(offset: 0),
       config: const QuillControllerConfig(
         clipboardConfig: QuillClipboardConfig(
@@ -372,7 +347,7 @@ class _FletQuillEditorControlState extends State<FletQuillEditorControl> {
     _currentControllerId = id;
     _entry = QuillControllerRegistry().getOrCreate(
       id,
-      initialDocument: _parseDocument(widget.control),
+      initialDocument: parseDocument(widget.control.get('text_data')),
     );
   }
 

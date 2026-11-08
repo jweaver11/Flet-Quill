@@ -36,6 +36,21 @@ flet build macos -v
 
 [Link to documentation](https://MyGithubAccount.github.io/flet-quill/)
 
+## Editor content
+
+`FletQuill` and `FletQuillEditor` accept initial content through `text_data`
+as a list of Quill Delta operations, for example:
+
+```python
+editor = FletQuillEditor(text_data=[{"insert": "Hello, world!\n"}])
+delta_ops = await editor.save()
+```
+
+Omit `text_data` to start with an empty document. `save()` returns the current
+Delta operations; it does not write a file. File paths, JSON strings, and
+other document formats are not supported as editor input or output. Applications
+that need file storage or format conversion must implement those separately.
+
 ## Toolbar buttons
 
 `FletQuillToolbar` accepts a `toolbar_buttons` list of regular Flet controls.

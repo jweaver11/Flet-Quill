@@ -3,16 +3,12 @@ from dataclasses import field
 import flet as ft
 from typing import Optional, Any
 
-from .text_converter import load_file_to_delta_ops
-
-
 @ft.control("FletQuill")
 class FletQuill(ft.LayoutControl):
     """
     Combined Quill toolbar + editor in a single control.
     """
 
-    file_path: Optional[str] = None
     show_toolbar_divider: bool = True
     show_line_height_button: bool = False
     center_toolbar: bool = False
@@ -22,7 +18,7 @@ class FletQuill(ft.LayoutControl):
     font_sizes: Optional[list[int]] = None
 
     # Content passed as Delta ops list.
-    text_data: list[dict[str, Any]] = None
+    text_data: Optional[list[dict[str, Any]]] = None
 
     async def save(self) -> list[dict[str, Any]]:
         """
@@ -47,7 +43,7 @@ class FletQuillEditor(ft.LayoutControl):
     controller_id: str = "default"
     placeholder_text: Optional[str] = "Enter text here..."
     # Initial content as Delta ops list.
-    text_data: list[dict[str, Any]] = None
+    text_data: Optional[list[dict[str, Any]]] = None
 
     async def save(self) -> list[dict[str, Any]]:
         """

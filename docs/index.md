@@ -18,7 +18,7 @@ def main(page: ft.Page):
 
                 ft.Container(height=150, width=300, alignment = ft.Alignment.CENTER, bgcolor=ft.Colors.PURPLE_200, content=FletQuill(
                     tooltip="My new FletQuill Control tooltip",
-                    value = "My new FletQuill Flet Control", 
+                    text_data=[{"insert": "My new FletQuill Flet Control\n"}],
                 ),),
 
     )
@@ -30,5 +30,4 @@ ft.run(main)
 ## Classes
 
 [FletQuill](FletQuill.md)
-
 
