@@ -80,7 +80,3 @@ toolbar = FletQuillToolbar(
   ],
 )
 ```
-
-<p align="center">
-  <img src="images/Screenshot1.png" alt="Screenshot 1 of the StoryBoard app" width="700">
-</p>
