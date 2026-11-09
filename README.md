@@ -1,5 +1,7 @@
 # flet-quill
-FletQuill control for Flet
+FletQuill control for Flet, based on the Flutter Quill Widget. Rich text editor on mobile and desktop applications.
+
+Flutter documentation: https://pub.dev/packages/flutter_quill
 
 ## Installation
 
@@ -12,10 +14,10 @@ Link to git repository:
 ```
 dependencies = [
   "flet-quill @ git+https://github.com/MyGithubAccount/flet-quill",
-  "flet>=0.81.0",
+  "flet>=1.1.0",
 ]
 
-# If you get build errors, add these to pyproject.toml
+# If you get color picker build errors, add these to pyproject.toml
 [tool.flet.flutter.pubspec.dependency_overrides.flutter_colorpicker.git]
 url = "https://github.com/flet-dev/flutter_colorpicker"
 ref = "material-ui"
@@ -29,7 +31,7 @@ If the package is published on pypi.org:
 ```
 dependencies = [
   "flet-quill",
-  "flet>=0.81.0",
+  "flet>=1.1.0",
 ]
 ```
 
