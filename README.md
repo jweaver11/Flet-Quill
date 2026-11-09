@@ -12,7 +12,7 @@ Link to git repository:
 ```
 dependencies = [
   "flet-quill @ git+https://github.com/MyGithubAccount/flet-quill",
-  "flet>=0.81.0",
+  "flet>=1.1.0",
 ]
 
 # If you get build errors, add these to pyproject.toml
@@ -29,7 +29,7 @@ If the package is published on pypi.org:
 ```
 dependencies = [
   "flet-quill",
-  "flet>=0.81.0",
+  "flet>=1.1.0",
 ]
 ```
 
@@ -38,45 +38,76 @@ Build your app:
 flet build macos -v
 ```
 
-## Documentation
-
-[Link to documentation](https://MyGithubAccount.github.io/flet-quill/)
-
-## Editor content
-
-`FletQuill` and `FletQuillEditor` accept initial content through `text_data`
-as a list of Quill Delta operations, for example:
+## Example Code
 
 ```python
-editor = FletQuillEditor(text_data=[{"insert": "Hello, world!\n"}])
-delta_ops = await editor.save()
+import flet as ft
+from flet_quill import FletQuill, FletQuillEditor, FletQuillToolbar
+
+
+def main(page: ft.Page):
+
+    async def get_word_count():
+        wc = 0
+        doc_data = await quill_editor.save()    # Returns our delta json data (Quill Delta format)
+        for block in doc_data:
+            if "insert" in block:
+                if isinstance(block["insert"], str):    # Protect against page breaks
+                    wc += len(block["insert"].split())
+        word_count.value = f"Word Count: {wc}"
+
+    # Nice little formatted word count button
+    word_count_button = ft.IconButton(
+        icon=ft.CupertinoIcons.TEXTFORMAT_SIZE,
+        tooltip="Word Count", 
+        on_click=get_word_count,
+        bgcolor=ft.Colors.TRANSPARENT,
+        highlight_color=ft.Colors.TRANSPARENT,
+        hover_color=ft.Colors.TRANSPARENT,
+        padding=ft.Padding.all(0),
+        size_constraints=ft.BoxConstraints(min_width=0, min_height=0),
+    )
+
+    quill_toolbar = FletQuillToolbar(
+        controller_id="default",
+        toolbar_buttons=[word_count_button]
+    )
+
+    
+    quill_editor = FletQuillEditor(
+        controller_id="default",
+        text_data=[{"insert": "This is my Quill Data!\n"}],        # Pass in data
+        placeholder_text="Start typing here...",
+    )
+
+    word_count = ft.Text("Word Count: 5")   # Word count text
+    
+    page.add(
+        ft.SafeArea(
+            expand=True,
+            content=ft.Column([
+                quill_toolbar,
+                ft.Container(
+                    quill_editor, 
+                    border=ft.Border.all(2, ft.Colors.OUTLINE_VARIANT), 
+                    expand=True,
+                    padding=72
+                ),
+                word_count
+            ])
+        )
+    )
+
+    # Combined - accepts all arguments for both split elements above
+    quill = FletQuill()
+
+
+if __name__ == "__main__":
+    ft.run(main)
+
 ```
 
-Omit `text_data` to start with an empty document. `save()` returns the current
-Delta operations; it does not write a file. File paths, JSON strings, and
-other document formats are not supported as editor input or output. Applications
-that need file storage or format conversion must implement those separately.
-
-## Toolbar buttons
-
-`FletQuillToolbar` accepts a `toolbar_buttons` list of regular Flet controls.
-Those controls are rendered after the built-in Quill formatting toolbar, which
-lets you add app-specific actions such as save/export/page-break buttons.
-
-Set `show_line_height_button=True` to add Flutter Quill's line-height dropdown
-to either `FletQuill` or `FletQuillToolbar`.
-
-Both toolbar variants include an **Insert page break** button. It inserts a
-`page-break` block embed, rendered as a faded dashed divider that fills the
-available editor width.
-
-```python
-toolbar = FletQuillToolbar(
-  controller_id="page_1",
-  show_line_height_button=True,
-  toolbar_buttons=[
-    ft.IconButton(icon=ft.Icons.SAVE, on_click=save_editor),
-    ft.IconButton(icon=ft.Icons.INSERT_PAGE_BREAK, on_click=insert_page_break),
-  ],
-)
-```
+## Screenshot
+<p align="center">
+  <img src="images/Screenshot1.png" alt="Screenshot 1 of the StoryBoard app" width="700">
+</p>
