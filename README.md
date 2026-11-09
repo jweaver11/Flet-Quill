@@ -14,7 +14,13 @@ dependencies = [
   "flet-quill @ git+https://github.com/MyGithubAccount/flet-quill",
   "flet>=0.81.0",
 ]
+
+# If you get build errors, add these to pyproject.toml
+[tool.flet.flutter.pubspec.dependency_overrides.flutter_colorpicker.git]
+url = "https://github.com/flet-dev/flutter_colorpicker"
+ref = "material-ui"
 ```
+
 
 * **uv/pip dependency**  
 
