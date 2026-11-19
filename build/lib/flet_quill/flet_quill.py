@@ -36,8 +36,7 @@ class FletQuill(ft.LayoutControl):
 class FletQuillEditor(ft.LayoutControl):
     """
     Standalone Quill editor.  Pair with FletQuillToolbar via a shared
-    controller_id to support multiple editors driven by a single toolbar
-    (e.g. simulating page breaks like Google Docs / Word).
+    controller_id to support multiple editors driven by a single toolbar.
     """
 
     controller_id: str = "default"

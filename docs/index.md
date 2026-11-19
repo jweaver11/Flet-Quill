@@ -2,6 +2,9 @@
 
 FletQuill for Flet.
 
+Documents saved with the former page-break feature must have `page-break`
+embed operations removed before loading; those embeds are no longer supported.
+
 ## Examples
 
 ```
@@ -16,7 +19,7 @@ def main(page: ft.Page):
         doc_data = await quill_editor.save()    # Returns our delta json data (Quill Delta format)
         for block in doc_data:
             if "insert" in block:
-                if isinstance(block["insert"], str):    # Protect against page breaks
+                if isinstance(block["insert"], str):    # Count text inserts only
                     wc += len(block["insert"].split())
         word_count.value = f"Word Count: {wc}"
 

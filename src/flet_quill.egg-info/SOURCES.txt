@@ -42,4 +42,5 @@ src/flutter/flet_quill/lib/src/document.dart
 src/flutter/flet_quill/lib/src/extension.dart
 src/flutter/flet_quill/lib/src/flet_quill.dart
 src/flutter/flet_quill/test/document_test.dart
+src/flutter/flet_quill/test/editor_test.dart
 tests/test_flet_quill.py
