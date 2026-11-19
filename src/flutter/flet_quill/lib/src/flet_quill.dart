@@ -230,6 +230,9 @@ class _FletQuillControlState extends State<FletQuillControl> {
                 controller: _controller,
                 config: QuillEditorConfig(
                   placeholder: placeholderText,
+                  textSelectionThemeData: TextSelectionThemeData(
+                    cursorColor: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
               ),
             ),
@@ -306,6 +309,9 @@ class _FletQuillEditorControlState extends State<FletQuillEditorControl> {
           controller: _entry!.controller,
           config: QuillEditorConfig(
             placeholder: placeholder,
+            textSelectionThemeData: TextSelectionThemeData(
+              cursorColor: Theme.of(context).colorScheme.primary,
+            ),
           ),
         ),
       ),
